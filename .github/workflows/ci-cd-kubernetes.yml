@@ -13,8 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v2
-
+        uses: actions/checkout@v4
+        
       - name: Lint Dockerfiles with Hadolint
         run: |
           set -eu pipefail
@@ -23,49 +23,75 @@ jobs:
             docker run --rm -i hadolint/hadolint:latest-debian hadolint --no-fail $f
           done
 
-  # Job de Build con Kaniko
+  # Job de Build con Docker
   build:
     runs-on: ubuntu-latest
     needs: dockerfile-lint
     if: success()
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Check out repository
-        uses: actions/checkout@v2
-
+        uses: actions/checkout@v4
+        
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Create the Kaniko configuration file
-        run: |
-          echo "{\"auths\":{\"ghcr.io\":{\"username\":\"${{ github.actor }}\",\"password\":\"${{ secrets.GITHUB_TOKEN }}\"}}}" > /kaniko/.docker/config.json
-
-      - name: Log commit SHA
-        run: echo $GITHUB_SHA | tee latest_tag.txt
-
-      - name: Build and Push Docker image with Kaniko
-        uses: gcr.io/kaniko-project/executor:debug
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          args: |
-            --context=${{ github.workspace }}
-            --dockerfile=Dockerfile
-            --build-arg CI_REGISTRY_USER=${{ github.actor }}
-            --build-arg CI_JOB_TOKEN=${{ secrets.GITHUB_TOKEN }}
-            --cache=true
-            --cache-dir=/kaniko/cache
-            --label COMMIT_SHA=${{ github.sha }}
-            --destination=ghcr.io/${{ github.actor }}/${{ github.repository }}:${{ github.sha }}
-            --destination=ghcr.io/${{ github.actor }}/${{ github.repository }}:latest
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+            
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            CI_REGISTRY_USER=${{ github.actor }}
+            CI_JOB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   # Job de Deploy
   deploy:
     runs-on: ubuntu-latest
     needs: build
     if: success()
-
-    env:
-      NAMESPACE: ${{ github.ref == 'refs/heads/main' && 'prod-namespace' || 'dev-namespace' }}
-
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+          
+      - name: Set up Kubernetes context
+        run: |
+          echo "Setting up kubectl"
+          # Aquí deberías configurar tu kubeconfig real
+          # Por ejemplo, para un clúster cloud:
+          # echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
+          kubectl config use-context minikube
+          
       - name: Deploy to Kubernetes using Kustomize
         run: |
           echo "Deploying application"
@@ -79,9 +105,11 @@ jobs:
             echo "Unknown branch, skipping deployment"
             exit 1
           fi
-
-      - name: Verify Minikube Deployment
+          
+      - name: Verify Deployment
         run: |
-          # Verificar el estado de los pods en Minikube
+          echo "Verifying deployment"
+          NAMESPACE=${{ github.ref == 'refs/heads/main' && 'prod-namespace' || 'dev-namespace' }}
           kubectl get pods -n $NAMESPACE
           kubectl get deployments -n $NAMESPACE
+          kubectl rollout status deployment/your-app-name -n $NAMESPACE
