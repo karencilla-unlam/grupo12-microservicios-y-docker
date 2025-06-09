@@ -1,0 +1,87 @@
+---
+name: Build, Lint and Deploy Docker Image
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  # Job de Lint para Dockerfiles
+  dockerfile-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Lint Dockerfiles with Hadolint
+        run: |
+          set -eu pipefail
+          for f in $(find . -type f -iname 'Dockerfile'); do
+            echo "Linting: $f"
+            docker run --rm -i hadolint/hadolint:latest-debian hadolint --no-fail $f
+          done
+
+  # Job de Build con Kaniko
+  build:
+    runs-on: ubuntu-latest
+    needs: dockerfile-lint
+    if: success()
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Create the Kaniko configuration file
+        run: |
+          echo "{\"auths\":{\"ghcr.io\":{\"username\":\"${{ github.actor }}\",\"password\":\"${{ secrets.GITHUB_TOKEN }}\"}}}" > /kaniko/.docker/config.json
+
+      - name: Log commit SHA
+        run: echo $GITHUB_SHA | tee latest_tag.txt
+
+      - name: Build and Push Docker image with Kaniko
+        uses: gcr.io/kaniko-project/executor:debug
+        with:
+          args: |
+            --context=${{ github.workspace }}
+            --dockerfile=Dockerfile
+            --build-arg CI_REGISTRY_USER=${{ github.actor }}
+            --build-arg CI_JOB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+            --cache=true
+            --cache-dir=/kaniko/cache
+            --label COMMIT_SHA=${{ github.sha }}
+            --destination=ghcr.io/${{ github.actor }}/${{ github.repository }}:${{ github.sha }}
+            --destination=ghcr.io/${{ github.actor }}/${{ github.repository }}:latest
+
+  # Job de Deploy
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: success()
+
+    env:
+      NAMESPACE: ${{ github.ref == 'refs/heads/main' && 'prod-namespace' || 'dev-namespace' }}
+
+    steps:
+      - name: Deploy to Kubernetes using Kustomize
+        run: |
+          echo "Deploying application"
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            echo "Deploying to production"
+            kubectl apply -k ./manifiestos/produccion
+          elif [[ "${GITHUB_REF}" == "refs/heads/develop" ]]; then
+            echo "Deploying to development"
+            kubectl apply -k ./manifiestos/desarrollo
+          else
+            echo "Unknown branch, skipping deployment"
+            exit 1
+          fi
+
+      - name: Verify Minikube Deployment
+        run: |
+          # Verificar el estado de los pods en Minikube
+          kubectl get pods -n $NAMESPACE
+          kubectl get deployments -n $NAMESPACE
