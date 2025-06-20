@@ -1,7 +1,6 @@
-﻿namespace TelegramBot.Entidades
-{
-    public class Class1
-    {
+﻿namespace TelegramBot.Data;
 
-    }
+public class Class1
+{
+
 }
