@@ -14,7 +14,7 @@ namespace TelegramBot.Web.Controllers
         private readonly ITelegramBotClient _bot;
         private readonly IServicioPreguntas _servicioPreguntas;
 
-        public ControladorTelegram(IServicioPreguntas servicioPreguntas)
+        public TelegramController(IServicioPreguntas servicioPreguntas)
         {
             // Iniciás el bot con el token
             _bot = new TelegramBotClient("TOKEN_BOT");

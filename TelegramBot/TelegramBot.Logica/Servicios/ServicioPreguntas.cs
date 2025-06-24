@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TelegramBot.Data.EF;
 using TelegramBot.Logica.Interfaces;
 using TelegramBot.Logica.Servicios;
 
@@ -10,10 +11,10 @@ namespace TelegramBot.Logica.Servicios
 {
     public class ServicioPreguntas : IServicioPreguntas
     {
-        private readonly ContextoBaseDatosUnlam _contexto;
+        private readonly TelegramBotContext _contexto;
         private readonly IServicioClima _servicioClima;
 
-        public ServicioPreguntas(ContextoBaseDatosUnlam contexto, IServicioClima servicioClima)
+        public ServicioPreguntas(TelegramBotContext contexto, IServicioClima servicioClima)
         {
             _contexto = contexto;
             _servicioClima = servicioClima;

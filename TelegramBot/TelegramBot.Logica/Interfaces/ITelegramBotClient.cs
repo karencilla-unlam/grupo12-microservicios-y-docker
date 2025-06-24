@@ -7,7 +7,7 @@ using Telegram.Bot.Types;
 
 namespace TelegramBot.Logica.Interfaces
 {
-    public interface IServicioTelegramBot
+    public interface IServicioTelegramBotClient
     {
         Task EnviarMensajeTextoAsync(long chatId, string texto);
     }
