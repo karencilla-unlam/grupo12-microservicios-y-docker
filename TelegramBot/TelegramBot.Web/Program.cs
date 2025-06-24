@@ -1,11 +1,17 @@
+using TelegramBot.Data.EF;
 using TelegramBot.Logica;
+using TelegramBot.Logica.Interfaces;
+using TelegramBot.Logica.Servicios;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<TelegramBotContext>();
 /*builder.Services.AddScoped<ICohereLogica, CohereLogica>();*/
 builder.Services.AddHttpClient<ICohereLogica, CohereLogica>();
+builder.Services.AddScoped<IServicioClima, ServicioClimaHttp>();
+builder.Services.AddScoped<IServicioPreguntas, ServicioPreguntas>();
 
 var app = builder.Build();
 
