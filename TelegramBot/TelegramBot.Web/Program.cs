@@ -1,7 +1,11 @@
+using TelegramBot.Logica;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+/*builder.Services.AddScoped<ICohereLogica, CohereLogica>();*/
+builder.Services.AddHttpClient<ICohereLogica, CohereLogica>();
 
 var app = builder.Build();
 
