@@ -1,0 +1,48 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telegram-bot-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: telegram-bot
+  template:
+    metadata:
+      labels:
+        app: telegram-bot
+    spec:
+      initContainers:
+        - name: init-container
+          image: busybox:1.35.0-uclibc
+          command: ["sh", "-c", "echo 'Initializing environment'; sleep 5"]
+      containers:
+        - name: telegram-bot
+          image: telegram-bot:tag
+          ports:
+            - containerPort: 80
+          env:
+            - name: TELEGRAM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: telegram-secrets
+                  key: api_key
+            - name: BOT_NAME
+              value: "unlam-info-bot"
+            - name: DB_HOST
+              value: "localhost"
+            - name: DB_PORT
+              value: "1433"
+            - name: DB_NAME
+              value: "pw3"
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: db_user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: db_password
