@@ -14,7 +14,7 @@ public interface ICohereLogica
 public class CohereLogica : ICohereLogica
     {
         private readonly HttpClient _httpClient;
-        private readonly string _apiKey = "TU_API_KEY";
+        private readonly string _apiKey = "api cohere key";
 
         public CohereLogica(HttpClient httpClient)
         {
@@ -28,7 +28,7 @@ public class CohereLogica : ICohereLogica
             {
                 model = "command",
                 prompt = prompt,
-                max_tokens = 100
+                max_tokens = 500
             };
 
             var content = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
@@ -39,39 +39,6 @@ public class CohereLogica : ICohereLogica
             dynamic result = JsonConvert.DeserializeObject(responseBody);
             return result.generations[0].text;
         }
-
-    // usar Cohere para comparar la similitud entre una pregunta del usuario y preguntas almacenadas en tu base de datos usando embeddings. 
-
-    //Este método retorna el índice de la pregunta más similar en la lista preguntasAlmacenadas.Si no hay ninguna, retorna -1.
-    //public async Task<int> CompararSimilitudAsync(string preguntaUsuario, List<string> preguntasAlmacenadas)
-    //{
-    //    var requestBody = new
-    //    {
-    //        model = "embed-english-v3.0",
-    //        texts = new[] { preguntaUsuario }.Concat(preguntasAlmacenadas).ToArray()
-    //    };
-    //    var content = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
-    //    var response = await _httpClient.PostAsync("https://api.cohere.ai/v1/embed", content);
-    //    response.EnsureSuccessStatusCode();
-    //    var responseBody = await response.Content.ReadAsStringAsync();
-    //    dynamic result = JsonConvert.DeserializeObject(responseBody);
-
-    //    var embeddingUsuario = result.embeddings[0].ToObject<float[]>();
-
-    //    double maxSimilitud = double.MinValue;
-    //    int indiceMejor = -1;
-    //    for (int i = 1; i < preguntasAlmacenadas.Count + 1; i++)
-    //    {
-    //        var embeddingAlmacenada = result.embeddings[i].ToObject<float[]>();
-    //        double similitud = CalcularSimilitudCoseno(embeddingUsuario, embeddingAlmacenada);
-    //        if (similitud > maxSimilitud)
-    //        {
-    //            maxSimilitud = similitud;
-    //            indiceMejor = i - 1; // i-1 porque el primer embedding es el del usuario
-    //        }
-    //    }
-    //    return indiceMejor;
-    //}
 
     public async Task<int> CompararSimilitudAsync(string preguntaUsuario, List<string> preguntasAlmacenadas, double umbral = 0.8)
     {
