@@ -25,15 +25,27 @@ namespace TelegramBot.Logica.Servicios
         {
             if (EsPreguntaSobreClima(textoPregunta))
             {
-                // Para pruebas, inicialmente estamos usando "San Justo" como ubicación
+                // Para pruebas, usamos "San Justo", donde está la UNLaM
                 return await _servicioClima.ObtenerClimaActualAsync("San Justo");
             }
 
-            var pregunta = await _contexto.Consultas
-                .FirstOrDefaultAsync(p => textoPregunta.Contains(p.Pregunta));
+            // Normalizamos la pregunta
+            var preguntaLower = textoPregunta.ToLower();
 
-            return pregunta?.Respuesta ?? "Lo siento, no encontré una respuesta para tu pregunta.";
+            // Buscamos un tema de la universidad que coincida parcialmente
+            var tema = await _contexto.TemasUniversidads
+                .FirstOrDefaultAsync(t =>
+                    EF.Functions.Like(t.Titulo.ToLower(), $"%{preguntaLower}%") ||
+                    EF.Functions.Like(t.Categoria.ToLower(), $"%{preguntaLower}%"));
+
+            if (tema != null)
+            {
+                return $"Tema: {tema.Titulo}\nCategoría: {tema.Categoria}";
+            }
+
+            return "Lo siento, no encontré información sobre eso. ¿Podés reformular la pregunta?";
         }
+
 
         private bool EsPreguntaSobreClima(string texto)
         {
