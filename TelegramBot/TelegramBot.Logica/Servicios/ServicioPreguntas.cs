@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,8 +29,8 @@ namespace TelegramBot.Logica.Servicios
                 return await _servicioClima.ObtenerClimaActualAsync("San Justo");
             }
 
-            var pregunta = await _contexto.Preguntas
-                .FirstOrDefaultAsync(p => textoPregunta.Contains(p.Texto));
+            var pregunta = await _contexto.Consultas
+                .FirstOrDefaultAsync(p => textoPregunta.Contains(p.Pregunta));
 
             return pregunta?.Respuesta ?? "Lo siento, no encontré una respuesta para tu pregunta.";
         }

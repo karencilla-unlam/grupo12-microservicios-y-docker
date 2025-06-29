@@ -26,7 +26,7 @@ namespace TelegramBot.Web.Controllers
         {
             using var lector = new System.IO.StreamReader(Request.Body);
             var json = await lector.ReadToEndAsync();
-            var update = Newtonsoft.Json.JsonConvert.DeserializeObject<Update>(json);
+            var update = Newtonsoft.Json.JsonConvert.DeserializeObject<Telegram.Bot.Types.Update>(json);
 
             if (update.Type == UpdateType.Message && update.Message.Text != null)
             {
