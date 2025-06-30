@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,36 +15,43 @@ namespace TelegramBot.Logica.Servicios
     {
         private readonly TelegramBotContext _contexto;
         private readonly IServicioClima _servicioClima;
+        private readonly CohereLogica _cohereLogica;
 
-        public ServicioPreguntas(TelegramBotContext contexto, IServicioClima servicioClima)
+        public ServicioPreguntas(TelegramBotContext contexto, IServicioClima servicioClima, CohereLogica cohereLogica)
         {
             _contexto = contexto;
             _servicioClima = servicioClima;
+            _cohereLogica = cohereLogica;
         }
 
+        /* public async Task<string> ObtenerRespuestaAsync(string textoPregunta)
+         {
+             if (EsPreguntaSobreClima(textoPregunta))
+             {
+                 // Para pruebas, inicialmente estamos usando "San Justo" como ubicación
+                 return await _servicioClima.ObtenerClimaActualAsync("San Justo");
+             }
+
+             var pregunta = await _contexto.Preguntas
+                 .FirstOrDefaultAsync(p => textoPregunta.Contains(p.Texto));
+
+             return pregunta?.Respuesta ?? "Lo siento, no encontré una respuesta para tu pregunta.";
+         }*/
+
+        //cambia nombre de variable preguntas a consultas. ver como tiene cada uno su base
         public async Task<string> ObtenerRespuestaAsync(string textoPregunta)
         {
             if (EsPreguntaSobreClima(textoPregunta))
             {
-                // Para pruebas, usamos "San Justo", donde está la UNLaM
+                // Para pruebas, inicialmente estamos usando "San Justo" como ubicación
                 return await _servicioClima.ObtenerClimaActualAsync("San Justo");
             }
 
-            // Normalizamos la pregunta
-            var preguntaLower = textoPregunta.ToLower();
+            var consulta = await _contexto.Consultas
+                .FirstOrDefaultAsync(c => textoPregunta.Contains(c.Pregunta));
 
-            // Buscamos un tema de la universidad que coincida parcialmente
-            var tema = await _contexto.TemasUniversidads
-                .FirstOrDefaultAsync(t =>
-                    EF.Functions.Like(t.Titulo.ToLower(), $"%{preguntaLower}%") ||
-                    EF.Functions.Like(t.Categoria.ToLower(), $"%{preguntaLower}%"));
-
-            if (tema != null)
-            {
-                return $"Tema: {tema.Titulo}\nCategoría: {tema.Categoria}";
-            }
-
-            return "Lo siento, no encontré información sobre eso. ¿Podés reformular la pregunta?";
+            return consulta?.Respuesta ?? await _cohereLogica.GenerarRespuestaAsync(textoPregunta);
+            
         }
 
 

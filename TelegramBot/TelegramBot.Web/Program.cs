@@ -12,6 +12,8 @@ builder.Services.AddScoped<TelegramBotContext>();
 builder.Services.AddHttpClient<ICohereLogica, CohereLogica>();
 builder.Services.AddScoped<IServicioClima, ServicioClimaHttp>();
 builder.Services.AddScoped<IServicioPreguntas, ServicioPreguntas>();
+builder.Services.AddScoped<IServicioTelegramBotClient, ServicioTelegramBotClient>();
+builder.Services.AddScoped<CohereLogica>();
 
 var app = builder.Build();
 
@@ -32,6 +34,8 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Privacy}/{id?}");
+
+app.MapControllers();
 
 app.Run();
