@@ -8,7 +8,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<TelegramBotContext>();
-/*builder.Services.AddScoped<ICohereLogica, CohereLogica>();*/
 builder.Services.AddHttpClient<ICohereLogica, CohereLogica>();
 builder.Services.AddScoped<IServicioClima, ServicioClimaHttp>();
 builder.Services.AddScoped<IServicioPreguntas, ServicioPreguntas>();
