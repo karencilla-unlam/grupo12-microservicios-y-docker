@@ -12,17 +12,19 @@ namespace TelegramBot.Logica.Servicios
     {
         private readonly TelegramBotContext _contexto;
         private readonly IServicioClima _servicioClima;
-        private readonly CohereLogica _cohereLogica;
+        private readonly CohereMicroservicioClient _cohereClient;
         private readonly ILogger<ServicioPreguntas> _logger;
 
-
-        public ServicioPreguntas(TelegramBotContext contexto, IServicioClima servicioClima, CohereLogica cohereLogica, ILogger<ServicioPreguntas> logger)
+        public ServicioPreguntas(
+            TelegramBotContext contexto,
+            IServicioClima servicioClima,
+            CohereMicroservicioClient cohereClient,
+            ILogger<ServicioPreguntas> logger)
         {
             _contexto = contexto;
             _servicioClima = servicioClima;
-            _cohereLogica = cohereLogica;
+            _cohereClient = cohereClient;
             _logger = logger;
-
         }
 
         public async Task<string> ObtenerRespuestaAsync(string textoPregunta)
@@ -90,7 +92,7 @@ namespace TelegramBot.Logica.Servicios
 
             if (preguntasAlmacenadas.Any())
             {
-                int idxSimilar = await _cohereLogica.CompararSimilitudAsync(textoPregunta, preguntasAlmacenadas);
+                int idxSimilar = await _cohereClient.CompararSimilitudAsync(textoPregunta, preguntasAlmacenadas);
                 _logger.LogInformation("Índice similar encontrado: {Indice}", idxSimilar);
 
                 if (idxSimilar >= 0 && idxSimilar < preguntasAlmacenadas.Count)
@@ -110,7 +112,7 @@ namespace TelegramBot.Logica.Servicios
 
         private async Task<string> GenerarRespuestaIAAsync(string textoPregunta)
         {
-            return await _cohereLogica.GenerarRespuestaAsync(textoPregunta);
+            return await _cohereClient.GenerarRespuestaAsync(textoPregunta);
         }
 
         private bool EsPreguntaSobreClima(string texto)

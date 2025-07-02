@@ -1,0 +1,6 @@
+@Microservicio.Cohere_HostAddress = http://localhost:5015
+
+GET {{Microservicio.Cohere_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
