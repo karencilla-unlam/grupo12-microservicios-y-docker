@@ -13,13 +13,13 @@ builder.Services.AddScoped<IServicioPreguntas, ServicioPreguntas>();
 builder.Services.AddHttpClient<CohereMicroservicioClient>()
     .AddTypedClient((httpClient, sp) =>
     {
-        var baseUrl = "https://localhost:7252"; 
+        var baseUrl = "https://localhost:32774"; 
         return new CohereMicroservicioClient(httpClient, baseUrl);
     });
 builder.Services.AddHttpClient<TelegramBotMicroservicioClient>()
     .AddTypedClient((httpClient, sp) =>
     {
-        var baseUrl = "https://localhost:7281"; 
+        var baseUrl = "https://localhost:32776"; 
         return new TelegramBotMicroservicioClient(httpClient, baseUrl);
     });
 var app = builder.Build();
