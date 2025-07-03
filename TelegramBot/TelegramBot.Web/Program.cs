@@ -8,9 +8,7 @@ using Serilog.Settings.Configuration;
 using TelegramBot.Data.EF;
 using TelegramBot.Logica;
 using TelegramBot.Logica.Interfaces;
-using TelegramBot.Logica.Interfaces.HealthCheck;
 using TelegramBot.Logica.Servicios;
-using TelegramBot.Logica.Servicios.HealthCheck;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,13 +23,15 @@ Log.Logger = new LoggerConfiguration()
 // Reemplaza el logger predeterminado por Serilog
 builder.Host.UseSerilog();
 
+builder.Services.AddHealthChecks();
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<TelegramBotContext>();
 /*builder.Services.AddScoped<ICohereLogica, CohereLogica>();*/
 builder.Services.AddHttpClient<ICohereLogica, CohereLogica>();
 builder.Services.AddScoped<IServicioClima, ServicioClimaHttp>();
-builder.Services.AddScoped<IServicioDeSalud, ServicioDeSalud>();
+//builder.Services.AddScoped<IServicioDeSalud, ServicioDeSalud>();
 builder.Services.AddScoped<IServicioPreguntas, ServicioPreguntas>();
 builder.Services.AddScoped<IServicioTelegramBotClient, ServicioTelegramBotClient>();
 builder.Services.AddScoped<CohereLogica>();
@@ -52,6 +52,8 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.MapHealthChecks("/healthz");
 
 app.MapControllerRoute(
     name: "default",
