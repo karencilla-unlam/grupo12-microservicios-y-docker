@@ -1,9 +1,27 @@
+using Serilog;
+using Serilog.Events;
+//using Serilog.Sinks.Console;
+using Serilog.Formatting.Compact;
+using Serilog.Exceptions;
+using Serilog.Extensions.Hosting;
+using Serilog.Settings.Configuration;
 using TelegramBot.Data.EF;
 using TelegramBot.Logica;
 using TelegramBot.Logica.Interfaces;
 using TelegramBot.Logica.Servicios;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configurar Serilog desde appsettings.json
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+// Reemplaza el logger predeterminado por Serilog
+builder.Host.UseSerilog();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -34,8 +52,12 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Privacy}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllers();
 
+// Registrar shutdown limpio de Serilog
 app.Run();
+
+// Asegurar cierre de Serilog al finalizar la app
+Log.CloseAndFlush();
