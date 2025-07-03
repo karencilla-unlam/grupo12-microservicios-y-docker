@@ -1,4 +1,3 @@
-﻿
 using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Types;

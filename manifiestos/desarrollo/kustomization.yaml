@@ -15,11 +15,8 @@ images:
   newTag: latest
 
 resources:
-  - bot-configmap.yaml
   - bot-deployment.yaml
-  - bot-ingress.yaml
-  - bot-pdb.yaml
-  - bot-sealed-secret.yaml
+#  - bot-sealed-secret.yaml -- Esto lo generó local cada uno, ya que al ser un minikube diferente por máquina, cambia el yaml resultante
   - bot-service.yaml
 
 namespace: chatbot-dev
