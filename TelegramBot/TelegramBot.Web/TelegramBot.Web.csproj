@@ -27,4 +27,9 @@
     <ProjectReference Include="..\TelegramBot.Logica\TelegramBot.Logica.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\NewFolder1\" />
+    <Folder Include="wwwroot\NewFolder\" />
+  </ItemGroup>
+
 </Project>
