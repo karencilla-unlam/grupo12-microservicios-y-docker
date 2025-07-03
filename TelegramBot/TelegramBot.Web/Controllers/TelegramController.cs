@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using TelegramBot.Logica.Interfaces;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Threading.Tasks;
-using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using System;
 

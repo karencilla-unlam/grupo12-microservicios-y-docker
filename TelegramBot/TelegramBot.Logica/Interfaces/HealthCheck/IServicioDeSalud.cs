@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TelegramBot.Logica.Interfaces
 {
-    internal class IServicioSalud
+    public interface IServicioSalud
     {
     }
 }

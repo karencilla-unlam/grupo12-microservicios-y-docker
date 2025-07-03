@@ -8,7 +8,9 @@ using Serilog.Settings.Configuration;
 using TelegramBot.Data.EF;
 using TelegramBot.Logica;
 using TelegramBot.Logica.Interfaces;
+using TelegramBot.Logica.Interfaces.HealthCheck;
 using TelegramBot.Logica.Servicios;
+using TelegramBot.Logica.Servicios.HealthCheck;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +31,7 @@ builder.Services.AddScoped<TelegramBotContext>();
 /*builder.Services.AddScoped<ICohereLogica, CohereLogica>();*/
 builder.Services.AddHttpClient<ICohereLogica, CohereLogica>();
 builder.Services.AddScoped<IServicioClima, ServicioClimaHttp>();
+builder.Services.AddScoped<IServicioDeSalud, ServicioDeSalud>();
 builder.Services.AddScoped<IServicioPreguntas, ServicioPreguntas>();
 builder.Services.AddScoped<IServicioTelegramBotClient, ServicioTelegramBotClient>();
 builder.Services.AddScoped<CohereLogica>();
