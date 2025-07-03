@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramBot.Data", "Telegra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramBot.Logica", "TelegramBot.Logica\TelegramBot.Logica.csproj", "{AADC5886-2D3A-47F0-A318-DFB87122342B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservicio.Cohere", "Microservicio.Cohere\Microservicio.Cohere.csproj", "{9AE43580-D2B9-457F-B3CD-FF019A9C7CDC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservicio.TelegramBot", "Microservicio.TelegramBot\Microservicio.TelegramBot.csproj", "{43533A87-1AA1-41EC-89F4-817EB7BD8AFB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{AADC5886-2D3A-47F0-A318-DFB87122342B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AADC5886-2D3A-47F0-A318-DFB87122342B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AADC5886-2D3A-47F0-A318-DFB87122342B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AE43580-D2B9-457F-B3CD-FF019A9C7CDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AE43580-D2B9-457F-B3CD-FF019A9C7CDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AE43580-D2B9-457F-B3CD-FF019A9C7CDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AE43580-D2B9-457F-B3CD-FF019A9C7CDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43533A87-1AA1-41EC-89F4-817EB7BD8AFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43533A87-1AA1-41EC-89F4-817EB7BD8AFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43533A87-1AA1-41EC-89F4-817EB7BD8AFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43533A87-1AA1-41EC-89F4-817EB7BD8AFB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

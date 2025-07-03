@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telegrambot-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: telegrambot-web
+  template:
+    metadata:
+      labels:
+        app: telegrambot-web
+    spec:
+      containers:
+      - name: telegrambot-web
+        image: telegrambot-web:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: telegrambot-web-service
+spec:
+  type: NodePort
+  selector:
+    app: telegrambot-web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+      nodePort: 32042
