@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
@@ -16,42 +17,39 @@ namespace TelegramBot.Logica.Servicios
         private readonly TelegramBotContext _contexto;
         private readonly IServicioClima _servicioClima;
         private readonly CohereLogica _cohereLogica;
+        private readonly ILogger<ServicioPreguntas> _logger;
 
-        public ServicioPreguntas(TelegramBotContext contexto, IServicioClima servicioClima, CohereLogica cohereLogica)
+        public ServicioPreguntas(TelegramBotContext contexto, IServicioClima servicioClima, CohereLogica cohereLogica, ILogger<ServicioPreguntas> logger)
         {
             _contexto = contexto;
             _servicioClima = servicioClima;
             _cohereLogica = cohereLogica;
+            _logger = logger;
         }
 
-        /* public async Task<string> ObtenerRespuestaAsync(string textoPregunta)
-         {
-             if (EsPreguntaSobreClima(textoPregunta))
-             {
-                 // Para pruebas, inicialmente estamos usando "San Justo" como ubicación
-                 return await _servicioClima.ObtenerClimaActualAsync("San Justo");
-             }
-
-             var pregunta = await _contexto.Preguntas
-                 .FirstOrDefaultAsync(p => textoPregunta.Contains(p.Texto));
-
-             return pregunta?.Respuesta ?? "Lo siento, no encontré una respuesta para tu pregunta.";
-         }*/
-
-        //cambia nombre de variable preguntas a consultas. ver como tiene cada uno su base
         public async Task<string> ObtenerRespuestaAsync(string textoPregunta)
         {
+            _logger.LogInformation("Pregunta recibida: {Pregunta}", textoPregunta);
+
             if (EsPreguntaSobreClima(textoPregunta))
             {
-                // Para pruebas, inicialmente estamos usando "San Justo" como ubicación
-                return await _servicioClima.ObtenerClimaActualAsync("San Justo");
+                var respuestaClima = await _servicioClima.ObtenerClimaActualAsync("San Justo");
+                _logger.LogInformation("Respuesta (Clima): {Respuesta}", respuestaClima);
+                return respuestaClima;
             }
 
             var consulta = await _contexto.Consultas
                 .FirstOrDefaultAsync(c => textoPregunta.Contains(c.Pregunta));
 
-            return consulta?.Respuesta ?? await _cohereLogica.GenerarRespuestaAsync(textoPregunta);
-            
+            if (consulta != null)
+            {
+                _logger.LogInformation("Respuesta (DB): {Respuesta}", consulta.Respuesta);
+                return consulta.Respuesta;
+            }
+
+            var respuestaCohere = await _cohereLogica.GenerarRespuestaAsync(textoPregunta);
+            _logger.LogInformation("Respuesta (Cohere): {Respuesta}", respuestaCohere);
+            return respuestaCohere;
         }
 
 
