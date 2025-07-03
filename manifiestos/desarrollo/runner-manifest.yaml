@@ -35,3 +35,12 @@ spec:
       volumes:
         - name: runner-volume
           emptyDir: {}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: github-runner-secret
+  namespace: github-runner
+type: Opaque
+data:
+  token: <BASE64_DEL_TOKEN>
