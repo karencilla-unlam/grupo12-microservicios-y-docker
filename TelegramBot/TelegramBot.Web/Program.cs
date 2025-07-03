@@ -24,23 +24,35 @@ builder.Host.UseSerilog();
 
 try
 {
-    Log.Information("Iniciando aplicación");
+    Log.Information("Iniciando configuración de servicios");
 
-    // Health checks
+    // Servicios generales
+    builder.Services.AddControllersWithViews();
     builder.Services.AddHealthChecks();
 
-    // Services
-    builder.Services.AddControllersWithViews();
+    // Servicios propios
     builder.Services.AddScoped<TelegramBotContext>();
-    builder.Services.AddHttpClient<ICohereLogica, CohereLogica>();
     builder.Services.AddScoped<IServicioClima, ServicioClimaHttp>();
     builder.Services.AddScoped<IServicioPreguntas, ServicioPreguntas>();
-    builder.Services.AddScoped<IServicioTelegramBotClient, ServicioTelegramBotClient>();
-    builder.Services.AddScoped<CohereLogica>();
-    // builder.Services.AddScoped<IServicioDeSalud, ServicioDeSalud>();
+
+    // Microservicios vía HttpClient
+    builder.Services.AddHttpClient<CohereMicroservicioClient>()
+        .AddTypedClient((httpClient, sp) =>
+        {
+            var baseUrl = "https://localhost:32769";
+            return new CohereMicroservicioClient(httpClient, baseUrl);
+        });
+
+    builder.Services.AddHttpClient<TelegramBotMicroservicioClient>()
+        .AddTypedClient((httpClient, sp) =>
+        {
+            var baseUrl = "https://localhost:32771";
+            return new TelegramBotMicroservicioClient(httpClient, baseUrl);
+        });
 
     var app = builder.Build();
 
+    // Configuración del pipeline
     if (!app.Environment.IsDevelopment())
     {
         app.UseExceptionHandler("/Home/Error");
@@ -61,6 +73,7 @@ try
 
     app.MapControllers();
 
+    Log.Information("Aplicación iniciada correctamente");
     app.Run();
 }
 catch (Exception ex)

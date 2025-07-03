@@ -1,0 +1,6 @@
+services:
+  microservicio.telegrambot:
+    image: ${DOCKER_REGISTRY-}microserviciotelegrambot
+    build:
+      context: .
+      dockerfile: Microservicio.TelegramBot/Dockerfile
