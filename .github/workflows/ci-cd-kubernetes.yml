@@ -58,19 +58,23 @@ jobs:
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
             
-      - name: Build and push Docker image
+      # 1️⃣ Build Microservicio.Cohere
+      - name: Build and push Cohere microservice
         uses: docker/build-push-action@v5
         with:
-          context: ./TelegramBot
-          file: ./TelegramBot/Dockerfile
+          context: ./TelegramBot/Microservicio.Cohere
+          file: ./TelegramBot/Microservicio.Cohere/Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            CI_REGISTRY_USER=${{ github.actor }}
-            CI_JOB_TOKEN=${{ secrets.GITHUB_TOKEN }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          tags: ghcr.io/${{ github.repository }}:cohere-${{ github.sha }}
+
+      # 2️⃣ Build Microservicio.TelegramBot
+      - name: Build and push TelegramBot microservice
+        uses: docker/build-push-action@v5
+        with:
+          context: ./TelegramBot/Microservicio.TelegramBot
+          file: ./TelegramBot/Microservicio.TelegramBot/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository }}:telegrambot-${{ github.sha }}
 
   # Job de Deploy
   deploy:
