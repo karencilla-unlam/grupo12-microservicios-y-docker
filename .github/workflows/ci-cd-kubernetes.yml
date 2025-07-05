@@ -15,13 +15,15 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
         
-      - name: Lint Dockerfiles with Hadolint
+      - name: Lint Dockerfiles with Hadolint (Docker)
         run: |
           set -eu pipefail
-          for f in $(find . -type f -iname 'Dockerfile'); do
+          repo_root="$(pwd)"
+          find . -type f -iname 'Dockerfile' | while read f; do
             echo "Linting: $f"
-            docker run --rm -i hadolint/hadolint:latest-debian hadolint --no-fail $f
+            docker run --rm -i -v "${repo_root}:/mnt" hadolint/hadolint:latest-debian hadolint --no-fail "/mnt/${f}"
           done
+
 
   # Job de Build con Docker
   build:
