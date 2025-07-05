@@ -62,7 +62,7 @@ jobs:
       - name: Build and push Cohere microservice
         uses: docker/build-push-action@v5
         with:
-          context: ./TelegramBot/Microservicio.Cohere
+          context: .
           file: ./TelegramBot/Microservicio.Cohere/Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository }}:cohere-${{ github.sha }}
@@ -71,7 +71,7 @@ jobs:
       - name: Build and push TelegramBot microservice
         uses: docker/build-push-action@v5
         with:
-          context: ./TelegramBot/Microservicio.TelegramBot
+          context: .
           file: ./TelegramBot/Microservicio.TelegramBot/Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository }}:telegrambot-${{ github.sha }}
