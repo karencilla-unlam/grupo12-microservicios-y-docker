@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: telegrambot-web
+  namespace: chatbot-dev
 spec:
   replicas: 1
   selector:
@@ -23,6 +24,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: telegrambot-web-service
+  namespace: chatbot-dev
 spec:
   type: NodePort
   selector:

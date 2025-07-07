@@ -1,8 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
-using Serilog.Formatting.Compact;
 using Serilog.Exceptions;
 using Serilog.Extensions.Hosting;
+using Serilog.Formatting.Compact;
 using Serilog.Settings.Configuration;
 using TelegramBot.Data.EF;
 using TelegramBot.Logica;
@@ -34,19 +35,26 @@ try
     builder.Services.AddScoped<TelegramBotContext>();
     builder.Services.AddScoped<IServicioClima, ServicioClimaHttp>();
     builder.Services.AddScoped<IServicioPreguntas, ServicioPreguntas>();
+    builder.Services.AddDbContext<TelegramBotContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+           .EnableSensitiveDataLogging()
+           .LogTo(Console.WriteLine, LogLevel.Information));
 
     // Microservicios vía HttpClient
     builder.Services.AddHttpClient<CohereMicroservicioClient>()
         .AddTypedClient((httpClient, sp) =>
         {
-            var baseUrl = "https://localhost:32769";
+            //var baseUrl = "https://localhost:32769";
+            var baseUrl = $"http://microservicio-cohere";
+
             return new CohereMicroservicioClient(httpClient, baseUrl);
         });
 
     builder.Services.AddHttpClient<TelegramBotMicroservicioClient>()
         .AddTypedClient((httpClient, sp) =>
         {
-            var baseUrl = "https://localhost:32771";
+            //var baseUrl = "https://localhost:32771";
+            var baseUrl = $"http://microservicio-telegrambot";
             return new TelegramBotMicroservicioClient(httpClient, baseUrl);
         });
 
