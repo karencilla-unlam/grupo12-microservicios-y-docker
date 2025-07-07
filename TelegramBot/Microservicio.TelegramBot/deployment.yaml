@@ -23,7 +23,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: microservicio-telegrambot-service
+  name: microservicio-telegrambot
   namespace: chatbot-dev
 spec:
   type: ClusterIP

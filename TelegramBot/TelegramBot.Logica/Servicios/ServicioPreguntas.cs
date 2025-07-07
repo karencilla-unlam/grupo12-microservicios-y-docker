@@ -74,40 +74,56 @@ namespace TelegramBot.Logica.Servicios
 
         private async Task<string?> BuscarRespuestaExactaAsync(string textoPregunta)
         {
-            var consulta = await _contexto.Consultas
-                .FirstOrDefaultAsync(c => textoPregunta.Contains(c.Pregunta));
+            try
+            {
+                var consulta = await _contexto.Consultas
+                    .FirstOrDefaultAsync(c => textoPregunta.Contains(c.Pregunta));
 
-            if (consulta != null && !string.IsNullOrEmpty(consulta.Respuesta))
-                return consulta.Respuesta;
+                if (consulta != null && !string.IsNullOrEmpty(consulta.Respuesta))
+                    return consulta.Respuesta;
 
-            return null;
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error en BuscarRespuestaExactaAsync: {Mensaje}", ex.Message);
+                throw;
+            }
         }
 
         private async Task<string?> BuscarRespuestaSimilarAsync(string textoPregunta)
         {
-            var preguntasAlmacenadas = await _contexto.Consultas
-                .Where(c => !string.IsNullOrEmpty(c.Pregunta) && !string.IsNullOrEmpty(c.Respuesta))
-                .Select(c => c.Pregunta)
-                .ToListAsync();
-
-            if (preguntasAlmacenadas.Any())
+            try
             {
-                int idxSimilar = await _cohereClient.CompararSimilitudAsync(textoPregunta, preguntasAlmacenadas);
-                _logger.LogInformation("Índice similar encontrado: {Indice}", idxSimilar);
+                var preguntasAlmacenadas = await _contexto.Consultas
+                    .Where(c => !string.IsNullOrEmpty(c.Pregunta) && !string.IsNullOrEmpty(c.Respuesta))
+                    .Select(c => c.Pregunta)
+                    .ToListAsync();
 
-                if (idxSimilar >= 0 && idxSimilar < preguntasAlmacenadas.Count)
+                if (preguntasAlmacenadas.Any())
                 {
-                    var consultaSimilar = await _contexto.Consultas
-                        .FirstOrDefaultAsync(c => c.Pregunta == preguntasAlmacenadas[idxSimilar]);
-                    if (consultaSimilar != null && !string.IsNullOrEmpty(consultaSimilar.Respuesta))
+                    int idxSimilar = await _cohereClient.CompararSimilitudAsync(textoPregunta, preguntasAlmacenadas);
+                    _logger.LogInformation("Índice similar encontrado: {Indice}", idxSimilar);
+
+                    if (idxSimilar >= 0 && idxSimilar < preguntasAlmacenadas.Count)
                     {
-                        _logger.LogInformation("Respuesta similar encontrada: {Respuesta}", consultaSimilar.Respuesta);
-                        return consultaSimilar.Respuesta;
+                        var consultaSimilar = await _contexto.Consultas
+                            .FirstOrDefaultAsync(c => c.Pregunta == preguntasAlmacenadas[idxSimilar]);
+                        if (consultaSimilar != null && !string.IsNullOrEmpty(consultaSimilar.Respuesta))
+                        {
+                            _logger.LogInformation("Respuesta similar encontrada: {Respuesta}", consultaSimilar.Respuesta);
+                            return consultaSimilar.Respuesta;
+                        }
                     }
                 }
+                _logger.LogInformation("No se encontró respuesta similar.");
+                return null;
             }
-            _logger.LogInformation("No se encontró respuesta similar.");
-            return null;
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error en BuscarRespuestaSimilarAsync: {Mensaje}", ex.Message);
+                throw;
+            }
         }
 
         private async Task<string> GenerarRespuestaIAAsync(string textoPregunta)
