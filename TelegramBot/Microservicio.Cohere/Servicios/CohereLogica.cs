@@ -15,7 +15,7 @@ public class CohereLogica : ICohereLogica
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<CohereLogica> _logger;
-    private readonly string _apiKey = "apy key";
+    private readonly string _apiKey = "F8sjhT4HHQOpBAXOLmRS5o6m0X2OvgBy04KWMSV5";
 
     public CohereLogica(HttpClient httpClient, ILogger<CohereLogica> logger)
     {
