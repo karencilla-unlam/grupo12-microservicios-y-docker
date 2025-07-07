@@ -122,13 +122,21 @@ namespace TelegramBot.Logica.Servicios
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error en BuscarRespuestaSimilarAsync: {Mensaje}", ex.Message);
-                throw;
+                return "No podemos responderle en estos momentos, reintente luego o pruebe con otra pregunta.";
             }
         }
 
         private async Task<string> GenerarRespuestaIAAsync(string textoPregunta)
         {
-            return await _cohereClient.GenerarRespuestaAsync(textoPregunta);
+            try
+            {
+                return await _cohereClient.GenerarRespuestaAsync(textoPregunta);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error en GenerarRespuestaIAAsync: {Mensaje}", ex.Message);
+                return "No podemos responderle en estos momentos, reintente luego o pruebe con otra pregunta.";
+            }
         }
 
         private bool EsPreguntaSobreClima(string texto)
